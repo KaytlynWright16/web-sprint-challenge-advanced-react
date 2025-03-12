@@ -53,6 +53,16 @@ export default function AppFunctional(props) {
       newIndex -= 3;
     } else if (direction === 'down' && index < 6) {
       newIndex += 3;
+    } else {
+      if (direction === 'left') {
+        setMessage("You can't go left")
+      }  else if (direction === 'right') {
+        setMessage("You can't go right")
+      }  else if (direction === 'up') {
+        setMessage("You can't go up")
+      }  else if (direction === 'down') {
+        setMessage("You can't go down")
+      }
     }
     return newIndex;
   }
@@ -64,82 +74,87 @@ export default function AppFunctional(props) {
     const newIndex = getNextIndex(direction);
     if (newIndex !== index) {
       setIndex(newIndex);
-      setSteps(steps + 1)
+      setSteps((prevSteps) => prevSteps + 1);
+      setMessage('');
     }
   }
 
   function onChange(evt) {
     // You will need this to update the value of the input.
-    setEmail(evt.target.value);
+    const newEmail = evt.target.value;
+    setEmail(newEmail);
   }
 
   async function onSubmit(evt) {
     // Use a POST request to send a payload to the server.
     evt.preventDefault();
 
-    
+      console.log('entered email before the trim:', email)
+      console.log('entered email after the trim:' `${email.trim()}`)
 
-    const regEx = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if(!email) {
-      setMessage('Ouch: email is required')
-      return;
-    } else if (!regEx.test(email)) {
-      setMessage('Ouch: email must be a valid email');
-      return;
-    } else if (email === 'foo@bar.bar') {
-      setMessage('Forbidden')
+      setMessage('Ouch: email is required');
       return;
     } 
 
+    const regEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]{2,}$/;
+    
 
-    const {coordX, coordY} = getXY();
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
+    if (!regEx.test(email.trim())) {
+      console.log('invalid email detected', email.trim());
+      setMessage('Ouch: email must be a valid email');
+      return;
+    } 
 
-    const payload = {
-      x: 1,
-       y: 2,
-      steps: 3,
-      email: "lady@gaga.com"
+    console.log('email is valid')
+
+    if (email === 'foo@bar.baz') {
+      setMessage('foo@bar.baz failure #71');
+      return;
     }
 
-    const raw = JSON.stringify(payload);
-
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow"
-  };
+    const { coordX, coordY } = getXY();
+    const payload = {
+      x: coordX,
+      y: coordY,
+      steps: steps,
+      email: email
+    }
 
     try {
-      const response = await fetch("http://localhost:9000/api/result", requestOptions);
+      const response = await fetch("http://localhost:9000/api/result", {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       
-      if(response.ok) {
-        const result = await response.text();
-        setMessage(result);
-        reset();
-        console.log(result)
+     
+      const result = await response.text(); 
+
+      console.log("API Response", result)
+      
+      if (response.ok) {
+        setMessage(result.trim());
       } else {
-        const errorRes = await response.text();
-        setMessage(`Error: ${errorRes}`);
+        setMessage(`Error: ${result.trim()}`); 
       }
     } catch (error) {
       setMessage(`Error: ${error.message}`);
-}
-  }
+    }
+    setEmail(initialEmail);
+  } 
 
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
-        <h3 id="steps">You moved {steps} times</h3>
+        <h3 id="steps">You moved {steps} {steps === 1 ? 'time' : 'times'}</h3>
       </div>
       <div id="grid">
         {
           [0, 1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
-            <div key={idx} className={`square${idx === 4 ? ' active' : ''}`}>
-              {idx === 4 ? 'B' : null}
+            <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
+              {idx === index ? 'B' : null}
             </div>
           ))
         }
