@@ -54,15 +54,7 @@ export default function AppFunctional(props) {
     } else if (direction === 'down' && index < 6) {
       newIndex += 3;
     } else {
-      if (direction === 'left') {
-        setMessage("You can't go left")
-      }  else if (direction === 'right') {
-        setMessage("You can't go right")
-      }  else if (direction === 'up') {
-        setMessage("You can't go up")
-      }  else if (direction === 'down') {
-        setMessage("You can't go down")
-      }
+      setMessage(`You can't go ${direction}`)
     }
     return newIndex;
   }
@@ -81,23 +73,20 @@ export default function AppFunctional(props) {
 
   function onChange(evt) {
     // You will need this to update the value of the input.
-    const newEmail = evt.target.value;
-    setEmail(newEmail);
+   setEmail(evt.target.value);
   }
 
   async function onSubmit(evt) {
     // Use a POST request to send a payload to the server.
     evt.preventDefault();
 
-      console.log('entered email before the trim:', email)
-      console.log('entered email after the trim:' `${email.trim()}`)
-
+   
     if(!email) {
       setMessage('Ouch: email is required');
       return;
     } 
 
-    const regEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]{2,}$/;
+    const regEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     
 
     if (!regEx.test(email.trim())) {
@@ -106,10 +95,10 @@ export default function AppFunctional(props) {
       return;
     } 
 
-    console.log('email is valid')
+    
 
-    if (email === 'foo@bar.baz') {
-      setMessage('foo@bar.baz failure #71');
+    if (email.trim() === 'foo@bar.bar') {
+      setMessage('foo@bar.bar failure #71');
       return;
     }
 
@@ -131,8 +120,7 @@ export default function AppFunctional(props) {
      
       const result = await response.text(); 
 
-      console.log("API Response", result)
-      
+     
       if (response.ok) {
         setMessage(result.trim());
       } else {
@@ -141,7 +129,7 @@ export default function AppFunctional(props) {
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     }
-    setEmail(initialEmail);
+    setEmail(initialEmail)
   } 
 
   return (
@@ -160,7 +148,7 @@ export default function AppFunctional(props) {
         }
       </div>
       <div className="info">
-        <h3 id="message">{message}</h3>
+        <h3 id="message">{message || ''}</h3>
       </div>
       <div id="keypad">
         <button id="left" onClick={move}>LEFT</button>
