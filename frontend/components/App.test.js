@@ -3,6 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import AppFunctional from "./AppFunctional"
 
+// Write your tests here
+test('sanity', () => {
+  expect(true).toBe(true)
+})
 
 test('renders headings, buttons, and input field', () => {
   render(<AppFunctional />);
@@ -77,7 +81,4 @@ test('reset button resets coords and steps', () => {
   expect(screen.getByText(/coordinates \(2, 2\)/i)).toBeInTheDocument();
 });
 
-// Write your tests here
-test('sanity', () => {
-  expect(true).toBe(true)
-})
+
